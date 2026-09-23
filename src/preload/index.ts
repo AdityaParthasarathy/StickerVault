@@ -11,6 +11,9 @@ const api = {
   importStickers: (filePaths: string[]): Promise<ImportResult> =>
     ipcRenderer.invoke('stickers:import', filePaths),
 
+  importGeneratedSticker: (pngBytes: Uint8Array, displayName: string): Promise<Sticker> =>
+    ipcRenderer.invoke('stickers:import-generated', pngBytes, displayName),
+
   selectStickerFiles: (): Promise<string[]> =>
     ipcRenderer.invoke('dialog:select-sticker-files'),
 

@@ -11,6 +11,7 @@ import StickerContextMenu from './components/StickerContextMenu'
 import StickerPreview from './components/StickerPreview'
 import ImportModal from './components/ImportModal'
 import CommandPalette from './components/CommandPalette'
+import StickerEditor from './components/StickerEditor'
 import Toast from './components/Toast'
 import { useTheme } from './hooks/useTheme'
 import { sortStickers, type SortOrder } from './lib/sortStickers'
@@ -75,6 +76,7 @@ const App: FC = () => {
     y: number
   } | null>(null)
   const [renamingStickerId, setRenamingStickerId] = useState<string | null>(null)
+  const [editingStickerId, setEditingStickerId] = useState<string | null>(null)
   const [toast, setToast] = useState<{ message: string; tone: 'success' | 'error' } | null>(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
@@ -232,8 +234,16 @@ const App: FC = () => {
     }
   }
 
+  const handleEditSaved = (newSticker: Sticker): void => {
+    setStickers((current) => [...current, newSticker])
+    setEditingStickerId(null)
+    setPreviewStickerId(newSticker.id)
+    setToast({ message: 'Saved as a new sticker', tone: 'success' })
+  }
+
   const previewSticker = stickers.find((s) => s.id === previewStickerId) ?? null
   const contextMenuSticker = stickers.find((s) => s.id === contextMenuRequest?.stickerId) ?? null
+  const editingSticker = stickers.find((s) => s.id === editingStickerId) ?? null
 
   const visibleStickers = useMemo(() => {
     let result = stickers
@@ -361,6 +371,7 @@ const App: FC = () => {
           onCopy={handleContextMenuCopy}
           onToggleFavorite={handleToggleFavorite}
           onOpen={handleOpen}
+          onEdit={setEditingStickerId}
           onRequestRename={setRenamingStickerId}
           onSetPack={handleSetPack}
           onDelete={handleDelete}
@@ -375,9 +386,18 @@ const App: FC = () => {
           onCopy={handleCopy}
           onToggleFavorite={handleToggleFavorite}
           onOpen={handleOpen}
+          onEdit={setEditingStickerId}
           onRename={handleRename}
           onSetPack={handleSetPack}
           onDelete={handleDelete}
+        />
+      )}
+
+      {editingSticker && (
+        <StickerEditor
+          sticker={editingSticker}
+          onClose={() => setEditingStickerId(null)}
+          onSaved={handleEditSaved}
         />
       )}
 

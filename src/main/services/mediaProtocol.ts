@@ -17,7 +17,13 @@ export function registerMediaSchemeAsPrivileged(): void {
   protocol.registerSchemesAsPrivileged([
     {
       scheme: MEDIA_SCHEME,
-      privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true }
+      privileges: {
+        standard: true,
+        secure: true,
+        supportFetchAPI: true,
+        stream: true,
+        corsEnabled: true
+      }
     }
   ])
 }
@@ -39,6 +45,17 @@ export function registerMediaProtocolHandler(): void {
     const safeFileName = basename(decodeURIComponent(url.pathname))
     const filePath = join(root, safeFileName)
 
-    return net.fetch(pathToFileURL(filePath).toString())
+    return net.fetch(pathToFileURL(filePath).toString()).then((response) => {
+      // Without an explicit CORS header, an <img> loaded from this scheme
+      // taints any <canvas> it's drawn onto — canvas.toBlob()/getImageData()
+      // then throw, which is exactly what the sticker editor needs to work.
+      const headers = new Headers(response.headers)
+      headers.set('Access-Control-Allow-Origin', '*')
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers
+      })
+    })
   })
 }

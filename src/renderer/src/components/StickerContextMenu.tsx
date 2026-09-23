@@ -12,6 +12,7 @@ interface StickerContextMenuProps {
   onCopy: (id: string) => void
   onToggleFavorite: (id: string) => void
   onOpen: (id: string) => void
+  onEdit: (id: string) => void
   onRequestRename: (id: string) => void
   onSetPack: (id: string, packId: string | null) => void
   onDelete: (id: string) => void
@@ -28,6 +29,7 @@ const StickerContextMenu: FC<StickerContextMenuProps> = ({
   onCopy,
   onToggleFavorite,
   onOpen,
+  onEdit,
   onRequestRename,
   onSetPack,
   onDelete
@@ -96,6 +98,15 @@ const StickerContextMenu: FC<StickerContextMenuProps> = ({
             }}
           >
             Open
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onClose()
+              onEdit(sticker.id)
+            }}
+          >
+            Edit
           </button>
           <button
             type="button"

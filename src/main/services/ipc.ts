@@ -3,6 +3,7 @@ import type { CopyResult, ThemePreference } from '../../shared/types'
 import {
   getLibrary,
   importStickerFiles,
+  importGeneratedImage,
   getStickerById,
   getOriginalFilePath,
   setStickerFavorite,
@@ -43,6 +44,10 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle('stickers:import', (_event, filePaths: string[]) => {
     return importStickerFiles(filePaths)
+  })
+
+  ipcMain.handle('stickers:import-generated', (_event, pngBytes: Uint8Array, displayName: string) => {
+    return importGeneratedImage(Buffer.from(pngBytes), displayName)
   })
 
   ipcMain.handle('dialog:select-sticker-files', async (event) => {

@@ -2,7 +2,25 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: stickervault-media:;" />
+    <!--
+      script-src 'wasm-unsafe-eval': required to run WebAssembly, which is
+      how background removal runs its ML model locally on-device.
+      connect-src staticimgly.com: the one-time download of that model
+      (an open-source neural net, not a paid API) — your actual sticker
+      images never leave the device, only this generic model file is
+      fetched, and only the first time you use background removal.
+      worker-src/script-src blob:: the model's inference code is loaded as
+      a Web Worker from a blob: URL (a common technique for bundling worker
+      code) so removing a background never freezes the rest of the UI.
+      'unsafe-eval': one of the background-removal library's numeric
+      dependencies evaluates code strings internally. This only ever runs
+      our own bundled code — no remote page content is ever loaded here to
+      begin with, so this doesn't open a new attack surface in practice.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: stickervault-media:; script-src 'self' blob: 'wasm-unsafe-eval' 'unsafe-eval'; worker-src 'self' blob:; connect-src 'self' blob: stickervault-media: https://staticimgly.com;"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>StickerVault</title>
   </head>

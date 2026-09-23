@@ -58,6 +58,34 @@ function createThumbnail(sourcePath: string, image: Electron.NativeImage, id: st
   writeFileSync(join(paths.thumbnailsDir, `${id}.png`), thumbnail.toPNG())
 }
 
+function buildStickerRecord(
+  id: string,
+  extension: string,
+  mimeType: string,
+  originalName: string,
+  displayName: string,
+  fileSize: number,
+  width: number,
+  height: number,
+  contentHash: string
+): Sticker {
+  return {
+    id,
+    filename: `${id}${extension}`,
+    originalName,
+    displayName,
+    mimeType,
+    fileSize,
+    width,
+    height,
+    isFavorite: false,
+    createdAt: Date.now(),
+    lastUsedAt: null,
+    packId: null,
+    contentHash
+  }
+}
+
 export function importStickerFiles(filePaths: string[]): ImportResult {
   ensureStorageDirsExist()
   const library = readLibrary()
@@ -105,21 +133,17 @@ export function importStickerFiles(filePaths: string[]): ImportResult {
     copyFileSync(sourcePath, join(paths.originalsDir, `${id}${extension}`))
     createThumbnail(sourcePath, image, id)
 
-    const sticker: Sticker = {
+    const sticker = buildStickerRecord(
       id,
-      filename: `${id}${extension}`,
-      originalName: fileName,
-      displayName: displayNameFromFile(fileName),
+      extension,
       mimeType,
+      fileName,
+      displayNameFromFile(fileName),
       fileSize,
       width,
       height,
-      isFavorite: false,
-      createdAt: Date.now(),
-      lastUsedAt: null,
-      packId: null,
       contentHash
-    }
+    )
 
     library.push(sticker)
     existingHashes.add(contentHash)
@@ -131,6 +155,43 @@ export function importStickerFiles(filePaths: string[]): ImportResult {
   }
 
   return { imported, skipped }
+}
+
+// Used by the sticker editor (background removal + text) to save an edited
+// result as a brand-new sticker, rather than overwriting the one the user
+// started from — the original stays untouched and importable again.
+export function importGeneratedImage(pngBytes: Buffer, displayName: string): Sticker {
+  ensureStorageDirsExist()
+
+  const image = nativeImage.createFromBuffer(pngBytes)
+  if (image.isEmpty()) {
+    throw new Error('Generated image could not be read')
+  }
+
+  const id = randomUUID()
+  const { width, height } = image.getSize()
+  const contentHash = createHash('sha256').update(pngBytes).digest('hex')
+
+  writeFileSync(join(paths.originalsDir, `${id}.png`), pngBytes)
+  createThumbnail(join(paths.originalsDir, `${id}.png`), image, id)
+
+  const sticker = buildStickerRecord(
+    id,
+    '.png',
+    'image/png',
+    `${displayName}.png`,
+    displayName.trim() || 'Untitled',
+    pngBytes.length,
+    width,
+    height,
+    contentHash
+  )
+
+  const library = readLibrary()
+  library.push(sticker)
+  writeLibrary(library)
+
+  return sticker
 }
 
 export function getStickerById(id: string): Sticker | undefined {

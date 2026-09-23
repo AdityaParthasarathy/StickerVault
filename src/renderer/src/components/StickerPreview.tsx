@@ -12,6 +12,7 @@ interface StickerPreviewProps {
   onCopy: (id: string) => Promise<boolean>
   onToggleFavorite: (id: string) => void
   onOpen: (id: string) => void
+  onEdit: (id: string) => void
   onRename: (id: string, displayName: string) => void
   onSetPack: (id: string, packId: string | null) => void
   onDelete: (id: string) => void
@@ -24,6 +25,7 @@ const StickerPreview: FC<StickerPreviewProps> = ({
   onCopy,
   onToggleFavorite,
   onOpen,
+  onEdit,
   onRename,
   onSetPack,
   onDelete
@@ -155,6 +157,15 @@ const StickerPreview: FC<StickerPreviewProps> = ({
             </button>
             <button type="button" onClick={() => onOpen(sticker.id)}>
               Open
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onClose()
+                onEdit(sticker.id)
+              }}
+            >
+              Edit
             </button>
             <button
               type="button"
