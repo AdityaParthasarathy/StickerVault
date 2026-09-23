@@ -1,28 +1,28 @@
 import type { FC } from 'react'
-import type { Pack, Sticker } from '@shared/types'
+import type { Sticker } from '@shared/types'
 import StickerCard from './StickerCard'
 import './StickerGrid.css'
 
 interface StickerGridProps {
   stickers: Sticker[]
-  packs: Pack[]
-  onCopy: (id: string) => Promise<boolean>
+  selectedStickerId: string | null
+  renamingStickerId: string | null
+  onSelect: (id: string) => void
   onToggleFavorite: (id: string) => void
-  onOpen: (id: string) => void
-  onRename: (id: string, displayName: string) => void
-  onSetPack: (id: string, packId: string | null) => void
-  onDelete: (id: string) => void
+  onContextMenuRequest: (id: string, x: number, y: number) => void
+  onRenameCommit: (id: string, displayName: string) => void
+  onRenameCancel: () => void
 }
 
 const StickerGrid: FC<StickerGridProps> = ({
   stickers,
-  packs,
-  onCopy,
+  selectedStickerId,
+  renamingStickerId,
+  onSelect,
   onToggleFavorite,
-  onOpen,
-  onRename,
-  onSetPack,
-  onDelete
+  onContextMenuRequest,
+  onRenameCommit,
+  onRenameCancel
 }) => {
   return (
     <div className="sticker-grid">
@@ -30,13 +30,13 @@ const StickerGrid: FC<StickerGridProps> = ({
         <StickerCard
           key={sticker.id}
           sticker={sticker}
-          packs={packs}
-          onCopy={onCopy}
+          isSelected={selectedStickerId === sticker.id}
+          isRenaming={renamingStickerId === sticker.id}
+          onSelect={onSelect}
           onToggleFavorite={onToggleFavorite}
-          onOpen={onOpen}
-          onRename={onRename}
-          onSetPack={onSetPack}
-          onDelete={onDelete}
+          onContextMenuRequest={onContextMenuRequest}
+          onRenameCommit={onRenameCommit}
+          onRenameCancel={onRenameCancel}
         />
       ))}
     </div>

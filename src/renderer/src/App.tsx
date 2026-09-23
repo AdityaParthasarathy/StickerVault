@@ -1,11 +1,19 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { DragEvent, FC } from 'react'
-import type { ImportSkip, Pack, Sticker } from '@shared/types'
+import type { ImportResult, ImportSkip, Pack, Sticker } from '@shared/types'
 import TopBar from './components/TopBar'
 import Sidebar, { type LibraryView, libraryViewKey } from './components/Sidebar'
 import EmptyState from './components/EmptyState'
 import StickerGrid from './components/StickerGrid'
 import ImportIssuesBanner from './components/ImportIssuesBanner'
+import ContentHeader from './components/ContentHeader'
+import StickerContextMenu from './components/StickerContextMenu'
+import StickerPreview from './components/StickerPreview'
+import ImportModal from './components/ImportModal'
+import CommandPalette from './components/CommandPalette'
+import Toast from './components/Toast'
+import { useTheme } from './hooks/useTheme'
+import { sortStickers, type SortOrder } from './lib/sortStickers'
 import './App.css'
 
 function viewTitle(view: LibraryView, packs: Pack[]): string {
@@ -18,6 +26,19 @@ function viewTitle(view: LibraryView, packs: Pack[]): string {
       return 'Recent'
     case 'pack':
       return packs.find((pack) => pack.id === view.packId)?.name ?? 'Pack'
+  }
+}
+
+function viewSubtitle(view: LibraryView): string {
+  switch (view.kind) {
+    case 'all':
+      return 'Your complete sticker collection'
+    case 'favorites':
+      return 'Stickers you have starred'
+    case 'recent':
+      return 'Stickers you have copied recently'
+    case 'pack':
+      return 'A pack in your vault'
   }
 }
 
@@ -45,6 +66,31 @@ const App: FC = () => {
   const [importIssues, setImportIssues] = useState<ImportSkip[]>([])
   const [isDragActive, setIsDragActive] = useState(false)
   const [isImporting, setIsImporting] = useState(false)
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false)
+  const [sortOrder, setSortOrder] = useState<SortOrder>('name')
+  const [previewStickerId, setPreviewStickerId] = useState<string | null>(null)
+  const [contextMenuRequest, setContextMenuRequest] = useState<{
+    stickerId: string
+    x: number
+    y: number
+  } | null>(null)
+  const [renamingStickerId, setRenamingStickerId] = useState<string | null>(null)
+  const [toast, setToast] = useState<{ message: string; tone: 'success' | 'error' } | null>(null)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
+  const { preference: themePreference, setPreference: setThemePreference } = useTheme()
+
+  // Ctrl+K opens the command palette from anywhere in the app.
+  useEffect(() => {
+    const handleGlobalKeyDown = (event: globalThis.KeyboardEvent): void => {
+      if (event.ctrlKey && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setIsCommandPaletteOpen(true)
+      }
+    }
+    document.addEventListener('keydown', handleGlobalKeyDown)
+    return () => document.removeEventListener('keydown', handleGlobalKeyDown)
+  }, [])
 
   // Load whatever was already imported/created in a previous session as
   // soon as the window opens.
@@ -62,44 +108,38 @@ const App: FC = () => {
 
   useEffect(loadLibrary, [])
 
-  const applyImportResult = (imported: Sticker[], skipped: ImportSkip[]): void => {
-    if (imported.length > 0) {
-      setStickers((current) => [...current, ...imported])
-    }
-    setImportIssues(skipped)
-  }
-
-  const handleImportClick = async (): Promise<void> => {
-    if (isImporting) return
-    const filePaths = await window.api.selectStickerFiles()
-    if (filePaths.length === 0) return
-
+  // Shared by every import entry point (the modal's browse/drop, and
+  // dragging files onto the window directly) so there's exactly one place
+  // that actually calls the import API and updates state.
+  const runImport = async (filePaths: string[]): Promise<ImportResult> => {
     setIsImporting(true)
     try {
       const result = await window.api.importStickers(filePaths)
-      applyImportResult(result.imported, result.skipped)
+      if (result.imported.length > 0) {
+        setStickers((current) => [...current, ...result.imported])
+      }
+      return result
     } finally {
       setIsImporting(false)
     }
   }
 
-  const handleDrop = async (event: DragEvent<HTMLDivElement>): Promise<void> => {
+  const handleImportClick = (): void => {
+    setIsImportModalOpen(true)
+  }
+
+  const handleWindowDrop = async (event: DragEvent<HTMLDivElement>): Promise<void> => {
     event.preventDefault()
     setIsDragActive(false)
-    if (isImporting) return
+    if (isImporting || isImportModalOpen) return
 
     const filePaths = Array.from(event.dataTransfer.files).map((file) =>
       window.api.getPathForFile(file)
     )
     if (filePaths.length === 0) return
 
-    setIsImporting(true)
-    try {
-      const result = await window.api.importStickers(filePaths)
-      applyImportResult(result.imported, result.skipped)
-    } finally {
-      setIsImporting(false)
-    }
+    const result = await runImport(filePaths)
+    setImportIssues(result.skipped)
   }
 
   const handleDragOver = (event: DragEvent<HTMLDivElement>): void => {
@@ -170,12 +210,38 @@ const App: FC = () => {
     )
   }
 
+  const handleCreateCollectionQuick = (): void => {
+    handleCreatePack('New Collection')
+  }
+
+  const handleContextMenuCopy = async (id: string): Promise<void> => {
+    const succeeded = await handleCopy(id)
+    setToast(
+      succeeded
+        ? { message: 'Copied to clipboard', tone: 'success' }
+        : { message: 'Copy failed', tone: 'error' }
+    )
+  }
+
+  const handleCardRenameCommit = (id: string, displayName: string): void => {
+    setRenamingStickerId(null)
+    const trimmed = displayName.trim()
+    const sticker = stickers.find((s) => s.id === id)
+    if (trimmed && sticker && trimmed !== sticker.displayName) {
+      handleRename(id, trimmed)
+    }
+  }
+
+  const previewSticker = stickers.find((s) => s.id === previewStickerId) ?? null
+  const contextMenuSticker = stickers.find((s) => s.id === contextMenuRequest?.stickerId) ?? null
+
   const visibleStickers = useMemo(() => {
     let result = stickers
+    const isRecentView = activeView.kind === 'recent'
 
     if (activeView.kind === 'favorites') {
       result = result.filter((sticker) => sticker.isFavorite)
-    } else if (activeView.kind === 'recent') {
+    } else if (isRecentView) {
       result = result
         .filter((sticker) => sticker.lastUsedAt !== null)
         .sort((a, b) => (b.lastUsedAt ?? 0) - (a.lastUsedAt ?? 0))
@@ -188,8 +254,18 @@ const App: FC = () => {
       result = result.filter((sticker) => sticker.displayName.toLowerCase().includes(query))
     }
 
-    return result
-  }, [stickers, activeView, searchQuery])
+    // Recent's whole point is "most recently used first" — a manual sort
+    // control would just undo that, so it only applies elsewhere.
+    return isRecentView ? result : sortStickers(result, sortOrder)
+  }, [stickers, activeView, searchQuery, sortOrder])
+
+  const packStickerCounts = useMemo(() => {
+    const counts: Record<string, number> = {}
+    for (const sticker of stickers) {
+      if (sticker.packId) counts[sticker.packId] = (counts[sticker.packId] ?? 0) + 1
+    }
+    return counts
+  }, [stickers])
 
   return (
     <div className="app">
@@ -198,6 +274,11 @@ const App: FC = () => {
         onSearchQueryChange={setSearchQuery}
         onImportClick={handleImportClick}
         isImporting={isImporting}
+        themePreference={themePreference}
+        onThemeChange={setThemePreference}
+        isSettingsOpen={isSettingsOpen}
+        onToggleSettings={() => setIsSettingsOpen((open) => !open)}
+        onCloseSettings={() => setIsSettingsOpen(false)}
       />
 
       <div className="app__body">
@@ -205,6 +286,7 @@ const App: FC = () => {
           activeView={activeView}
           onViewChange={setActiveView}
           packs={packs}
+          packStickerCounts={packStickerCounts}
           onCreatePack={handleCreatePack}
           onRenamePack={handleRenamePack}
           onDeletePack={handleDeletePack}
@@ -214,9 +296,16 @@ const App: FC = () => {
           className={`app__content ${isDragActive ? 'app__content--drag-active' : ''}`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
+          onDrop={handleWindowDrop}
         >
-          <h2 className="app__content-title">{viewTitle(activeView, packs)}</h2>
+          <ContentHeader
+            title={viewTitle(activeView, packs)}
+            subtitle={viewSubtitle(activeView)}
+            count={visibleStickers.length}
+            showSort={activeView.kind !== 'recent' && stickers.length > 0}
+            sortOrder={sortOrder}
+            onSortOrderChange={setSortOrder}
+          />
 
           {importIssues.length > 0 && (
             <ImportIssuesBanner issues={importIssues} onDismiss={() => setImportIssues([])} />
@@ -241,13 +330,15 @@ const App: FC = () => {
             ) : (
               <StickerGrid
                 stickers={visibleStickers}
-                packs={packs}
-                onCopy={handleCopy}
+                selectedStickerId={previewStickerId}
+                renamingStickerId={renamingStickerId}
+                onSelect={setPreviewStickerId}
                 onToggleFavorite={handleToggleFavorite}
-                onOpen={handleOpen}
-                onRename={handleRename}
-                onSetPack={handleSetPack}
-                onDelete={handleDelete}
+                onContextMenuRequest={(stickerId, x, y) =>
+                  setContextMenuRequest({ stickerId, x, y })
+                }
+                onRenameCommit={handleCardRenameCommit}
+                onRenameCancel={() => setRenamingStickerId(null)}
               />
             )}
           </div>
@@ -259,6 +350,60 @@ const App: FC = () => {
           )}
         </main>
       </div>
+
+      {contextMenuSticker && contextMenuRequest && (
+        <StickerContextMenu
+          sticker={contextMenuSticker}
+          packs={packs}
+          x={contextMenuRequest.x}
+          y={contextMenuRequest.y}
+          onClose={() => setContextMenuRequest(null)}
+          onCopy={handleContextMenuCopy}
+          onToggleFavorite={handleToggleFavorite}
+          onOpen={handleOpen}
+          onRequestRename={setRenamingStickerId}
+          onSetPack={handleSetPack}
+          onDelete={handleDelete}
+        />
+      )}
+
+      {previewSticker && (
+        <StickerPreview
+          sticker={previewSticker}
+          packs={packs}
+          onClose={() => setPreviewStickerId(null)}
+          onCopy={handleCopy}
+          onToggleFavorite={handleToggleFavorite}
+          onOpen={handleOpen}
+          onRename={handleRename}
+          onSetPack={handleSetPack}
+          onDelete={handleDelete}
+        />
+      )}
+
+      {isImportModalOpen && (
+        <ImportModal
+          isImporting={isImporting}
+          onImport={runImport}
+          onClose={() => setIsImportModalOpen(false)}
+        />
+      )}
+
+      {isCommandPaletteOpen && (
+        <CommandPalette
+          stickers={stickers}
+          onClose={() => setIsCommandPaletteOpen(false)}
+          onOpenSticker={setPreviewStickerId}
+          onImport={() => setIsImportModalOpen(true)}
+          onViewAll={() => setActiveView({ kind: 'all' })}
+          onViewFavorites={() => setActiveView({ kind: 'favorites' })}
+          onViewRecent={() => setActiveView({ kind: 'recent' })}
+          onCreateCollection={handleCreateCollectionQuick}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+        />
+      )}
+
+      {toast && <Toast message={toast.message} tone={toast.tone} onDismiss={() => setToast(null)} />}
     </div>
   )
 }

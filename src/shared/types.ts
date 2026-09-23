@@ -35,3 +35,9 @@ export interface Pack {
   name: string
   createdAt: number
 }
+
+export type ThemePreference = 'light' | 'dark' | 'system'
+
+export interface AppSettings {
+  theme: ThemePreference
+}

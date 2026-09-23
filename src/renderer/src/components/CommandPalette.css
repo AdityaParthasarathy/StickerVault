@@ -1,0 +1,106 @@
+.command-palette-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  justify-content: center;
+  padding-top: 14vh;
+  background: rgba(0, 0, 0, 0.45);
+  animation: preview-backdrop-in 120ms ease;
+}
+
+.command-palette {
+  width: min(540px, 90vw);
+  max-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-elevated);
+  overflow: hidden;
+  animation: preview-pop-in 140ms var(--ease-standard);
+}
+
+.command-palette__search {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.command-palette__search-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.command-palette__search input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--color-text-primary);
+  font-size: 15px;
+}
+
+.command-palette__search input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.command-palette__list {
+  overflow-y: auto;
+  padding: var(--space-2);
+}
+
+.command-palette__group {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: var(--space-2);
+}
+
+.command-palette__group-label {
+  padding: var(--space-2) var(--space-3) 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.command-palette__group button {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 var(--space-3);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  font-size: 13px;
+  text-align: left;
+}
+
+.command-palette__group button {
+  border-left: 2px solid transparent;
+}
+
+/* Higher specificity than ".command-palette__group button" on purpose —
+   otherwise that rule's own `background`/`color` win the cascade and the
+   highlight silently never shows, regardless of source order. */
+.command-palette__group button.command-palette__item--highlighted {
+  background: var(--color-hover);
+  border-left-color: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+.command-palette__empty {
+  padding: var(--space-4);
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}

@@ -1,5 +1,5 @@
 import { ipcMain, dialog, shell, clipboard, nativeImage, BrowserWindow } from 'electron'
-import type { CopyResult } from '../../shared/types'
+import type { CopyResult, ThemePreference } from '../../shared/types'
 import {
   getLibrary,
   importStickerFiles,
@@ -13,6 +13,7 @@ import {
   deleteSticker
 } from './stickerLibrary'
 import { getPacks, createPack, renamePack, deletePack } from './packLibrary'
+import { getSettings, setTheme } from './settingsStore'
 
 const STICKER_FILE_FILTERS = [
   { name: 'Stickers', extensions: ['png', 'webp', 'jpg', 'jpeg', 'gif'] }
@@ -140,5 +141,13 @@ export function registerIpcHandlers(): void {
     const deleted = deletePack(id)
     if (deleted) clearPackFromStickers(id)
     return deleted
+  })
+
+  ipcMain.handle('settings:get', () => {
+    return getSettings()
+  })
+
+  ipcMain.handle('settings:set-theme', (_event, theme: ThemePreference) => {
+    return setTheme(theme)
   })
 }

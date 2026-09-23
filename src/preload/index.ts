@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
-import type { CopyResult, ImportResult, Pack, Sticker } from '../shared/types'
+import type { AppSettings, CopyResult, ImportResult, Pack, Sticker, ThemePreference } from '../shared/types'
 
 // This file is the ONLY bridge between the React UI and the Electron main
 // process. The renderer can never import Node/Electron modules directly —
@@ -44,7 +44,12 @@ const api = {
   renamePack: (id: string, name: string): Promise<Pack | undefined> =>
     ipcRenderer.invoke('packs:rename', id, name),
 
-  deletePack: (id: string): Promise<boolean> => ipcRenderer.invoke('packs:delete', id)
+  deletePack: (id: string): Promise<boolean> => ipcRenderer.invoke('packs:delete', id),
+
+  getSettings: (): Promise<AppSettings> => ipcRenderer.invoke('settings:get'),
+
+  setTheme: (theme: ThemePreference): Promise<AppSettings> =>
+    ipcRenderer.invoke('settings:set-theme', theme)
 }
 
 export type StickerVaultApi = typeof api

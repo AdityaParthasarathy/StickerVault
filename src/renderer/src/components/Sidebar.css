@@ -5,7 +5,7 @@
   flex-direction: column;
   gap: var(--space-6);
   padding: var(--space-4) var(--space-3);
-  background: var(--color-bg);
+  background: var(--color-bg-sidebar);
   border-right: 1px solid var(--color-border);
   overflow-y: auto;
 }
@@ -51,17 +51,26 @@
 
 .sidebar__item--active {
   background: var(--color-accent-muted);
-  color: var(--color-accent);
+  color: var(--color-accent-text);
 }
 
 .sidebar__item--active:hover {
   background: var(--color-accent-muted);
-  color: var(--color-accent);
+  color: var(--color-accent-text);
 }
 
 .sidebar__item-icon {
-  font-size: 14px;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.sidebar__item-icon svg {
+  width: 15px;
+  height: 15px;
 }
 
 .sidebar__empty-hint {
@@ -97,10 +106,45 @@
   align-items: center;
 }
 
+.sidebar__pack-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+}
+
 .sidebar__pack-name {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.sidebar__pack-count {
+  flex-shrink: 0;
+  padding-right: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  transition: opacity 100ms ease;
+}
+
+/* The "..." button appears in roughly the same spot on hover, so the count
+   steps aside instead of the two overlapping. */
+.sidebar__pack-row:hover .sidebar__pack-count,
+.sidebar__pack-row:focus-within .sidebar__pack-count {
+  opacity: 0;
+}
+
+.sidebar__item--active .sidebar__pack-count {
+  color: var(--color-accent-text);
 }
 
 .sidebar__pack-more {
@@ -148,19 +192,8 @@
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-elevated);
-  animation: menu-pop-in 100ms ease;
+  animation: menu-pop-in 100ms var(--ease-standard);
   transform-origin: top right;
-}
-
-@keyframes menu-pop-in {
-  from {
-    opacity: 0;
-    transform: scale(0.96) translateY(-2px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
 }
 
 .sidebar__pack-menu button {

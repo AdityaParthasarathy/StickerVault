@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import type { FC, KeyboardEvent } from 'react'
+import type { FC, KeyboardEvent, ReactNode } from 'react'
 import type { Pack } from '@shared/types'
-import { MoreIcon } from './icons'
+import { ClockIcon, GridIcon, MoreIcon, StarIcon } from './icons'
+import { packColor, packInitial } from '../lib/packColor'
 import './Sidebar.css'
 
 export type LibraryView =
@@ -14,16 +15,17 @@ export function libraryViewKey(view: LibraryView): string {
   return view.kind === 'pack' ? `pack:${view.packId}` : view.kind
 }
 
-const LIBRARY_ITEMS: { view: LibraryView; label: string; icon: string }[] = [
-  { view: { kind: 'all' }, label: 'All Stickers', icon: '🖼️' },
-  { view: { kind: 'favorites' }, label: 'Favorites', icon: '⭐' },
-  { view: { kind: 'recent' }, label: 'Recent', icon: '🕐' }
+const LIBRARY_ITEMS: { view: LibraryView; label: string; icon: ReactNode }[] = [
+  { view: { kind: 'all' }, label: 'All Stickers', icon: <GridIcon /> },
+  { view: { kind: 'favorites' }, label: 'Favorites', icon: <StarIcon filled /> },
+  { view: { kind: 'recent' }, label: 'Recent', icon: <ClockIcon /> }
 ]
 
 interface SidebarProps {
   activeView: LibraryView
   onViewChange: (view: LibraryView) => void
   packs: Pack[]
+  packStickerCounts: Record<string, number>
   onCreatePack: (name: string) => void
   onRenamePack: (id: string, name: string) => void
   onDeletePack: (id: string) => void
@@ -33,6 +35,7 @@ const Sidebar: FC<SidebarProps> = ({
   activeView,
   onViewChange,
   packs,
+  packStickerCounts,
   onCreatePack,
   onRenamePack,
   onDeletePack
@@ -134,10 +137,17 @@ const Sidebar: FC<SidebarProps> = ({
                 className={`sidebar__item ${activeKey === `pack:${pack.id}` ? 'sidebar__item--active' : ''}`}
                 onClick={() => onViewChange({ kind: 'pack', packId: pack.id })}
               >
-                <span className="sidebar__item-icon" aria-hidden="true">
-                  📁
+                <span
+                  className="sidebar__pack-avatar"
+                  style={{ background: packColor(pack.id) }}
+                  aria-hidden="true"
+                >
+                  {packInitial(pack.name)}
                 </span>
                 <span className="sidebar__pack-name">{pack.name}</span>
+                {packStickerCounts[pack.id] > 0 && (
+                  <span className="sidebar__pack-count">{packStickerCounts[pack.id]}</span>
+                )}
               </button>
             )}
 

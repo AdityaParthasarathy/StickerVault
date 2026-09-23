@@ -13,7 +13,8 @@ export const paths = {
   originalsDir: join(root, 'stickers', 'originals'),
   thumbnailsDir: join(root, 'stickers', 'thumbnails'),
   libraryFile: join(root, 'library.json'),
-  packsFile: join(root, 'packs.json')
+  packsFile: join(root, 'packs.json'),
+  settingsFile: join(root, 'settings.json')
 }
 
 export function ensureStorageDirsExist(): void {

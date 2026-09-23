@@ -1,4 +1,11 @@
-import type { CopyResult, ImportResult, Pack, Sticker } from '../shared/types'
+import type {
+  AppSettings,
+  CopyResult,
+  ImportResult,
+  Pack,
+  Sticker,
+  ThemePreference
+} from '../shared/types'
 
 export interface StickerVaultApi {
   getLibrary: () => Promise<Sticker[]>
@@ -15,6 +22,8 @@ export interface StickerVaultApi {
   createPack: (name: string) => Promise<Pack | undefined>
   renamePack: (id: string, name: string) => Promise<Pack | undefined>
   deletePack: (id: string) => Promise<boolean>
+  getSettings: () => Promise<AppSettings>
+  setTheme: (theme: ThemePreference) => Promise<AppSettings>
 }
 
 declare global {

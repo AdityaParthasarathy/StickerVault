@@ -19,6 +19,15 @@ body {
   user-select: none;
 }
 
+/* Switching between light/dark should feel like a smooth fade, not a hard
+   cut — this alone is what makes theme toggling feel premium. */
+* {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
 /* Text should be selectable inside content areas even though the app chrome
    (sidebar, buttons) is not — that's standard desktop-app behavior. */
 input,
@@ -38,6 +47,19 @@ button {
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+/* Shared by every popover/dropdown menu (sticker card menu, pack menu,
+   settings panel) so they all open with the same subtle motion. */
+@keyframes menu-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 /* Respect the OS-level "reduce motion" accessibility setting by collapsing

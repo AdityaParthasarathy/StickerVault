@@ -1,4 +1,7 @@
 import type { FC, KeyboardEvent } from 'react'
+import type { ThemePreference } from '@shared/types'
+import { GearIcon, SearchIcon, VaultMarkIcon } from './icons'
+import SettingsPanel from './SettingsPanel'
 import './TopBar.css'
 
 interface TopBarProps {
@@ -6,6 +9,11 @@ interface TopBarProps {
   onSearchQueryChange: (value: string) => void
   onImportClick: () => void
   isImporting: boolean
+  themePreference: ThemePreference
+  onThemeChange: (theme: ThemePreference) => void
+  isSettingsOpen: boolean
+  onToggleSettings: () => void
+  onCloseSettings: () => void
 }
 
 // The top bar doubles as the window's title bar (see `titleBarStyle: hidden`
@@ -17,7 +25,12 @@ const TopBar: FC<TopBarProps> = ({
   searchQuery,
   onSearchQueryChange,
   onImportClick,
-  isImporting
+  isImporting,
+  themePreference,
+  onThemeChange,
+  isSettingsOpen,
+  onToggleSettings,
+  onCloseSettings
 }) => {
   const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
     if (event.key === 'Escape' && searchQuery) {
@@ -29,23 +42,21 @@ const TopBar: FC<TopBarProps> = ({
   return (
     <header className="top-bar">
       <div className="top-bar__brand">
-        <span className="top-bar__logo" aria-hidden="true">
-          🗂️
-        </span>
+        <VaultMarkIcon className="top-bar__logo" />
         <span className="top-bar__title">StickerVault</span>
       </div>
 
       <div className="top-bar__search no-drag">
-        <span className="top-bar__search-icon" aria-hidden="true">
-          🔍
-        </span>
+        <SearchIcon className="top-bar__search-icon" />
         <input
+          id="sticker-search-input"
           type="text"
           placeholder="Search stickers..."
           value={searchQuery}
           onChange={(event) => onSearchQueryChange(event.target.value)}
           onKeyDown={handleSearchKeyDown}
         />
+        <kbd className="top-bar__search-hint">Ctrl K</kbd>
       </div>
 
       <div className="top-bar__actions no-drag">
@@ -63,6 +74,25 @@ const TopBar: FC<TopBarProps> = ({
             </>
           )}
         </button>
+
+        <div className="top-bar__settings-anchor">
+          <button
+            type="button"
+            className="top-bar__icon-button"
+            title="Settings"
+            onClick={onToggleSettings}
+          >
+            <GearIcon className="top-bar__icon-button-icon" />
+          </button>
+
+          {isSettingsOpen && (
+            <SettingsPanel
+              themePreference={themePreference}
+              onThemeChange={onThemeChange}
+              onClose={onCloseSettings}
+            />
+          )}
+        </div>
       </div>
     </header>
   )

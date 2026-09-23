@@ -8,9 +8,11 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
+  cursor: pointer;
   transition:
     border-color 120ms ease,
-    background 120ms ease;
+    background 120ms ease,
+    transform 120ms var(--ease-standard);
   animation: card-appear 160ms ease;
 }
 
@@ -28,25 +30,23 @@
 .sticker-card:hover {
   background: var(--color-surface-elevated);
   border-color: var(--color-border-strong);
+  transform: translateY(-2px);
 }
 
-.sticker-card__image-button {
+.sticker-card--selected {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.sticker-card__image-wrap {
   width: 100%;
-  padding: 0;
-  background: transparent;
-  border: none;
   position: relative;
-}
-
-.sticker-card__image-button:active .sticker-card__image {
-  transform: scale(0.96);
 }
 
 .sticker-card__image {
   width: 100%;
   aspect-ratio: 1;
   object-fit: contain;
-  transition: transform 80ms ease;
   /* A subtle checkered pattern shows through transparent areas, so it's
      obvious at a glance which stickers have a transparent background. */
   background-image:
@@ -106,8 +106,8 @@
 
 .sticker-card:hover .sticker-card__favorite,
 .sticker-card:hover .sticker-card__more,
-.sticker-card:focus-within .sticker-card__favorite,
-.sticker-card:focus-within .sticker-card__more {
+.sticker-card:focus-visible .sticker-card__favorite,
+.sticker-card:focus-visible .sticker-card__more {
   opacity: 1;
 }
 
@@ -131,91 +131,6 @@
 
 .sticker-card__favorite-icon,
 .sticker-card__more-icon {
-  width: 14px;
-  height: 14px;
-}
-
-.sticker-card__menu {
-  position: absolute;
-  top: 30px;
-  right: var(--space-2);
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  min-width: 120px;
-  padding: var(--space-1);
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-elevated);
-  animation: menu-pop-in 100ms ease;
-  transform-origin: top right;
-}
-
-@keyframes menu-pop-in {
-  from {
-    opacity: 0;
-    transform: scale(0.96) translateY(-2px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-.sticker-card__menu button {
-  padding: var(--space-2) var(--space-3);
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-sm);
-  color: var(--color-text-primary);
-  font-size: 12px;
-  text-align: left;
-}
-
-.sticker-card__menu button:hover {
-  background: var(--color-hover);
-}
-
-.sticker-card__menu-danger {
-  color: var(--color-error) !important;
-}
-
-.sticker-card__menu-back {
-  color: var(--color-text-muted) !important;
-  border-bottom: 1px solid var(--color-border);
-  border-radius: 0 !important;
-  margin-bottom: var(--space-1);
-}
-
-.sticker-card__menu-selected {
-  color: var(--color-accent) !important;
-  font-weight: 600;
-}
-
-.sticker-card__feedback {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  background: rgba(13, 13, 16, 0.82);
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.sticker-card__feedback--copied {
-  color: var(--color-success);
-}
-
-.sticker-card__feedback--failed {
-  color: var(--color-error);
-}
-
-.sticker-card__feedback-icon {
   width: 14px;
   height: 14px;
 }

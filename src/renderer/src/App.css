@@ -19,13 +19,6 @@
   padding: var(--space-5) var(--space-6);
 }
 
-.app__content-title {
-  margin: 0 0 var(--space-4);
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
 .app__content-area {
   flex: 1;
   min-height: 0;
@@ -96,7 +89,7 @@
   background: var(--color-accent-muted);
   border: 2px dashed var(--color-accent);
   border-radius: var(--radius-lg);
-  color: var(--color-accent);
+  color: var(--color-accent-text);
   font-size: 14px;
   font-weight: 600;
   pointer-events: none;
