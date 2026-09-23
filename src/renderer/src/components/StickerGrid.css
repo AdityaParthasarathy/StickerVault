@@ -1,0 +1,9 @@
+.sticker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: var(--space-3);
+  overflow-y: auto;
+  height: 100%;
+  align-content: start;
+  padding-bottom: var(--space-4);
+}

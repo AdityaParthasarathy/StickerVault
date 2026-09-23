@@ -1,0 +1,50 @@
+/* Design tokens: every color, spacing, and radius value used anywhere in
+   StickerVault should come from one of these variables. Components should
+   never hardcode a hex color — that's what keeps the whole app visually
+   consistent as it grows, and makes a future theme (e.g. light mode) a
+   one-file change instead of a hunt through every component. */
+:root {
+  /* Surfaces, darkest to lightest */
+  --color-bg: #0d0d10;
+  --color-surface: #17171b;
+  --color-surface-elevated: #202027;
+  --color-border: #2a2a33;
+  --color-border-strong: #38383f;
+
+  /* Text, most to least prominent */
+  --color-text-primary: #f4f4f6;
+  --color-text-secondary: #a6a6b3;
+  --color-text-muted: #6c6c78;
+
+  /* Interaction */
+  --color-accent: #7c6cf6;
+  --color-accent-hover: #8f80ff;
+  --color-accent-muted: rgba(124, 108, 246, 0.14);
+  --color-hover: rgba(255, 255, 255, 0.05);
+  --color-active: rgba(255, 255, 255, 0.09);
+
+  /* Status */
+  --color-error: #f2545b;
+  --color-success: #4ade80;
+
+  /* Type */
+  --font-sans:
+    'Segoe UI Variable', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Spacing scale (rem) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 3rem;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  /* Shadow */
+  --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.35);
+}

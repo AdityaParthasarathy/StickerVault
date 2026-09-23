@@ -1,0 +1,221 @@
+.sticker-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition:
+    border-color 120ms ease,
+    background 120ms ease;
+  animation: card-appear 160ms ease;
+}
+
+@keyframes card-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.sticker-card:hover {
+  background: var(--color-surface-elevated);
+  border-color: var(--color-border-strong);
+}
+
+.sticker-card__image-button {
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: none;
+  position: relative;
+}
+
+.sticker-card__image-button:active .sticker-card__image {
+  transform: scale(0.96);
+}
+
+.sticker-card__image {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  transition: transform 80ms ease;
+  /* A subtle checkered pattern shows through transparent areas, so it's
+     obvious at a glance which stickers have a transparent background. */
+  background-image:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.04) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.04) 75%);
+  background-size: 12px 12px;
+  background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+  border-radius: var(--radius-sm);
+}
+
+.sticker-card__name {
+  width: 100%;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sticker-card__name-input {
+  width: 100%;
+  padding: 2px var(--space-1);
+  background: var(--color-bg);
+  border: 1px solid var(--color-accent);
+  border-radius: 4px;
+  color: var(--color-text-primary);
+  font-size: 12px;
+  text-align: center;
+  outline: none;
+}
+
+/* Corner controls: invisible until hover, except the favorite star which
+   stays visible once a sticker is actually favorited. */
+.sticker-card__favorite,
+.sticker-card__more {
+  position: absolute;
+  top: var(--space-2);
+  z-index: 1;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: rgba(13, 13, 16, 0.75);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  opacity: 0;
+  transition:
+    opacity 100ms ease,
+    color 100ms ease;
+}
+
+.sticker-card:hover .sticker-card__favorite,
+.sticker-card:hover .sticker-card__more,
+.sticker-card:focus-within .sticker-card__favorite,
+.sticker-card:focus-within .sticker-card__more {
+  opacity: 1;
+}
+
+.sticker-card__favorite {
+  left: var(--space-2);
+}
+
+.sticker-card__favorite[aria-pressed='true'] {
+  opacity: 1;
+  color: #f5c451;
+}
+
+.sticker-card__more {
+  right: var(--space-2);
+}
+
+.sticker-card__favorite:hover,
+.sticker-card__more:hover {
+  color: var(--color-text-primary);
+}
+
+.sticker-card__favorite-icon,
+.sticker-card__more-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.sticker-card__menu {
+  position: absolute;
+  top: 30px;
+  right: var(--space-2);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+  padding: var(--space-1);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-elevated);
+  animation: menu-pop-in 100ms ease;
+  transform-origin: top right;
+}
+
+@keyframes menu-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.sticker-card__menu button {
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  font-size: 12px;
+  text-align: left;
+}
+
+.sticker-card__menu button:hover {
+  background: var(--color-hover);
+}
+
+.sticker-card__menu-danger {
+  color: var(--color-error) !important;
+}
+
+.sticker-card__menu-back {
+  color: var(--color-text-muted) !important;
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 0 !important;
+  margin-bottom: var(--space-1);
+}
+
+.sticker-card__menu-selected {
+  color: var(--color-accent) !important;
+  font-weight: 600;
+}
+
+.sticker-card__feedback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: rgba(13, 13, 16, 0.82);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.sticker-card__feedback--copied {
+  color: var(--color-success);
+}
+
+.sticker-card__feedback--failed {
+  color: var(--color-error);
+}
+
+.sticker-card__feedback-icon {
+  width: 14px;
+  height: 14px;
+}

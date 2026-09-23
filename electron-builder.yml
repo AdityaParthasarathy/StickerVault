@@ -1,0 +1,28 @@
+appId: com.stickervault.app
+productName: StickerVault
+directories:
+  output: dist
+  buildResources: build
+
+# Only what's needed to run actually ships — source files, configs, and
+# node_modules dev tooling are left out automatically by electron-builder's
+# defaults; this just says explicitly where the built app code lives.
+files:
+  - out/**/*
+  - package.json
+
+win:
+  icon: build/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+# A standard installer wizard (not the "one click, no choices" style) so
+# it behaves like other Windows desktop apps: pick a folder, get Start Menu
+# and Desktop shortcuts.
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true

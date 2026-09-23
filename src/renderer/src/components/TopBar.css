@@ -1,0 +1,111 @@
+.top-bar {
+  /* This whole bar acts as the window's drag handle. */
+  -webkit-app-region: drag;
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: 0 var(--space-4);
+  /* Reserve space on the right so content never sits under Windows' own
+     minimize/maximize/close buttons, which the OS draws on top of us. */
+  padding-right: 150px;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
+.top-bar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.top-bar__logo {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.top-bar__title {
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.top-bar__search {
+  flex: 1;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 30px;
+  padding: 0 var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: border-color 120ms ease;
+}
+
+.top-bar__search:focus-within {
+  border-color: var(--color-accent);
+}
+
+.top-bar__search-icon {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.top-bar__search input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--color-text-primary);
+  font-size: 13px;
+}
+
+.top-bar__search input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.top-bar__actions {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.top-bar__import {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 30px;
+  padding: 0 var(--space-3);
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  transition:
+    background 120ms ease,
+    transform 80ms ease;
+}
+
+.top-bar__import:hover {
+  background: var(--color-accent-hover);
+}
+
+.top-bar__import:active {
+  transform: scale(0.97);
+}
+
+.top-bar__import:disabled {
+  background: var(--color-surface-elevated);
+  color: var(--color-text-muted);
+  cursor: default;
+}

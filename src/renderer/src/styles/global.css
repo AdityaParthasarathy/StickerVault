@@ -1,0 +1,67 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+/* Text should be selectable inside content areas even though the app chrome
+   (sidebar, buttons) is not — that's standard desktop-app behavior. */
+input,
+textarea {
+  user-select: text;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* A consistent, branded focus ring for keyboard navigation, instead of
+   each browser/OS's default outline. Mouse clicks don't show it — only
+   keyboard focus (:focus-visible) does, so it never appears as a stray box
+   around whatever you last clicked. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Respect the OS-level "reduce motion" accessibility setting by collapsing
+   every animation/transition to effectively instant. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
