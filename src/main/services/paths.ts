@@ -3,8 +3,8 @@ import { join } from 'path'
 import { mkdirSync } from 'fs'
 
 // Everything StickerVault stores lives under Electron's standard per-user
-// app data folder — on Windows that's
-// C:\Users\<you>\AppData\Roaming\StickerVault\ — so we never have to guess
+// app data folder - on Windows that's
+// C:\Users\<you>\AppData\Roaming\StickerVault\ - so we never have to guess
 // where it's safe to write files.
 const root = app.getPath('userData')
 

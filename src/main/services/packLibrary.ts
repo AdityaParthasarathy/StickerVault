@@ -4,7 +4,7 @@ import type { Pack } from '../../shared/types'
 import { paths } from './paths'
 
 // Same simple "read the whole JSON array, edit it, write it back" approach
-// as stickerLibrary.ts — packs are a short list, so there's no need for
+// as stickerLibrary.ts - packs are a short list, so there's no need for
 // anything fancier.
 function readPacks(): Pack[] {
   if (!existsSync(paths.packsFile)) return []

@@ -17,14 +17,14 @@ const THUMBNAIL_MAX_DIMENSION = 320
 
 // The metadata file is small (a JSON array) and only ever touched by user
 // actions like importing, so reading/writing it synchronously and in full
-// is simple and plenty fast — no need for a real database at this scale.
+// is simple and plenty fast - no need for a real database at this scale.
 function readLibrary(): Sticker[] {
   if (!existsSync(paths.libraryFile)) return []
   try {
     const raw = readFileSync(paths.libraryFile, 'utf-8')
     return JSON.parse(raw) as Sticker[]
   } catch {
-    // A corrupted or hand-edited metadata file shouldn't crash the app —
+    // A corrupted or hand-edited metadata file shouldn't crash the app -
     // treat it as an empty library rather than failing to launch.
     return []
   }
@@ -137,7 +137,7 @@ export async function importStickerFiles(filePaths: string[]): Promise<ImportRes
     const { width, height } = image.getSize()
 
     // Copy the original byte-for-byte into our storage folder. We never
-    // re-encode, crop, or otherwise transform the file the user imported —
+    // re-encode, crop, or otherwise transform the file the user imported -
     // only the separate thumbnail is a generated copy.
     copyFileSync(sourcePath, join(paths.originalsDir, `${id}${extension}`))
     createThumbnail(sourcePath, image, id)
@@ -171,7 +171,7 @@ export async function importStickerFiles(filePaths: string[]): Promise<ImportRes
 
 // Used by the sticker editor (background removal + text) to save an edited
 // result as a brand-new sticker, rather than overwriting the one the user
-// started from — the original stays untouched and importable again.
+// started from - the original stays untouched and importable again.
 export function importGeneratedImage(pngBytes: Buffer, displayName: string): Sticker {
   ensureStorageDirsExist()
 
@@ -264,7 +264,7 @@ export function deleteSticker(id: string): boolean {
   const [removed] = library.splice(index, 1)
   writeLibrary(library)
 
-  // The metadata entry is gone either way — if a stray file can't be
+  // The metadata entry is gone either way - if a stray file can't be
   // deleted (already missing, locked, etc.) that's not worth failing over.
   try {
     unlinkSync(join(paths.originalsDir, removed.filename))

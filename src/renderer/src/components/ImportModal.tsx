@@ -109,7 +109,7 @@ const ImportModal: FC<ImportModalProps> = ({ isImporting, onImport, onClose }) =
           >
             <DownloadIcon className="import-modal__dropzone-icon" />
             <p className="import-modal__dropzone-title">
-              {isImporting ? 'Importing…' : 'Drop stickers or folders here'}
+              {isImporting ? 'Importing…' : 'Drop stickers, folders or zips here'}
             </p>
             {!isImporting && (
               <>
@@ -126,9 +126,9 @@ const ImportModal: FC<ImportModalProps> = ({ isImporting, onImport, onClose }) =
                     Browse Folder
                   </button>
                 </div>
-                <p className="import-modal__formats">PNG · WEBP · JPG · GIF</p>
+                <p className="import-modal__formats">PNG · WEBP · JPG · GIF · ZIP</p>
                 <p className="import-modal__formats">
-                  Folders are scanned including all subfolders
+                  Folders and zips are searched including all subfolders
                 </p>
               </>
             )}

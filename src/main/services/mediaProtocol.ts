@@ -10,7 +10,7 @@ const ROOTS: Record<string, string> = {
   thumbnails: paths.thumbnailsDir
 }
 
-// The renderer can never see real filesystem paths — it only ever asks for
+// The renderer can never see real filesystem paths - it only ever asks for
 // URLs like `stickervault-media://thumbnails/<id>.png`. This must be called
 // before `app.whenReady()`.
 export function registerMediaSchemeAsPrivileged(): void {
@@ -47,7 +47,7 @@ export function registerMediaProtocolHandler(): void {
 
     return net.fetch(pathToFileURL(filePath).toString()).then((response) => {
       // Without an explicit CORS header, an <img> loaded from this scheme
-      // taints any <canvas> it's drawn onto — canvas.toBlob()/getImageData()
+      // taints any <canvas> it's drawn onto - canvas.toBlob()/getImageData()
       // then throw, which is exactly what the sticker editor needs to work.
       const headers = new Headers(response.headers)
       headers.set('Access-Control-Allow-Origin', '*')

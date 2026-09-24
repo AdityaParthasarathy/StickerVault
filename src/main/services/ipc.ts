@@ -18,11 +18,11 @@ import { getSettings, setTheme } from './settingsStore'
 import { collectImageFiles } from './folderScan'
 
 const STICKER_FILE_FILTERS = [
-  { name: 'Stickers', extensions: ['png', 'webp', 'jpg', 'jpeg', 'gif'] }
+  { name: 'Stickers and zip archives', extensions: ['png', 'webp', 'jpg', 'jpeg', 'gif', 'zip'] }
 ]
 
 // dialog.showMessageBox requires a real BrowserWindow argument to attach
-// to, or none at all — it doesn't accept `undefined`, so this picks the
+// to, or none at all - it doesn't accept `undefined`, so this picks the
 // right overload based on whether we found one.
 async function confirmDestructiveAction(
   event: Electron.IpcMainInvokeEvent,
@@ -46,9 +46,15 @@ export function registerIpcHandlers(): void {
   // Accepts files and/or folders; folders are expanded to the images inside
   // them (including subfolders) before importing.
   ipcMain.handle('stickers:import', async (_event, paths: string[]) => {
-    const { files, skipped: scanSkipped } = collectImageFiles(paths)
-    const result = await importStickerFiles(files)
-    return { ...result, skipped: [...scanSkipped, ...result.skipped] }
+    const scan = await collectImageFiles(paths)
+    try {
+      const result = await importStickerFiles(scan.files)
+      return { ...result, skipped: [...scan.skipped, ...result.skipped] }
+    } finally {
+      // Images pulled out of zips live in a temp folder until they've been
+      // copied into the library; remove it whether or not the import worked.
+      scan.cleanup()
+    }
   })
 
   ipcMain.handle('dialog:select-sticker-folders', async (event) => {
@@ -157,7 +163,7 @@ export function registerIpcHandlers(): void {
       cancelId: 0,
       title: 'Delete pack',
       message: `Delete the "${pack.name}" pack?`,
-      detail: 'Stickers inside it are not deleted — they just move back to All Stickers.'
+      detail: 'Stickers inside it are not deleted - they just move back to All Stickers.'
     })
     if (!confirmed) return false
 
