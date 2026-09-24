@@ -15,6 +15,7 @@ import {
 } from './stickerLibrary'
 import { getPacks, createPack, renamePack, deletePack } from './packLibrary'
 import { getSettings, setTheme } from './settingsStore'
+import { collectImageFiles } from './folderScan'
 
 const STICKER_FILE_FILTERS = [
   { name: 'Stickers', extensions: ['png', 'webp', 'jpg', 'jpeg', 'gif'] }
@@ -42,8 +43,25 @@ export function registerIpcHandlers(): void {
     return getLibrary()
   })
 
-  ipcMain.handle('stickers:import', (_event, filePaths: string[]) => {
-    return importStickerFiles(filePaths)
+  // Accepts files and/or folders; folders are expanded to the images inside
+  // them (including subfolders) before importing.
+  ipcMain.handle('stickers:import', async (_event, paths: string[]) => {
+    const { files, skipped: scanSkipped } = collectImageFiles(paths)
+    const result = await importStickerFiles(files)
+    return { ...result, skipped: [...scanSkipped, ...result.skipped] }
+  })
+
+  ipcMain.handle('dialog:select-sticker-folders', async (event) => {
+    const window = BrowserWindow.fromWebContents(event.sender)
+    const options: Electron.OpenDialogOptions = {
+      title: 'Import folders',
+      properties: ['openDirectory', 'multiSelections']
+    }
+    const result = window
+      ? await dialog.showOpenDialog(window, options)
+      : await dialog.showOpenDialog(options)
+    if (result.canceled) return []
+    return result.filePaths
   })
 
   ipcMain.handle('stickers:import-generated', (_event, pngBytes: Uint8Array, displayName: string) => {

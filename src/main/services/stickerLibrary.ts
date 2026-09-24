@@ -86,7 +86,16 @@ function buildStickerRecord(
   }
 }
 
-export function importStickerFiles(filePaths: string[]): ImportResult {
+export function isSupportedImageExtension(extension: string): boolean {
+  return extension.toLowerCase() in MIME_TYPES_BY_EXTENSION
+}
+
+// Importing a big folder is a long synchronous loop (hash, decode, thumbnail
+// per file). Yielding between files keeps the app's window responsive
+// instead of freezing until the whole batch is done.
+const yieldToEventLoop = (): Promise<void> => new Promise((resolve) => setImmediate(resolve))
+
+export async function importStickerFiles(filePaths: string[]): Promise<ImportResult> {
   ensureStorageDirsExist()
   const library = readLibrary()
   const existingHashes = new Set(library.map((sticker) => sticker.contentHash))
@@ -145,13 +154,16 @@ export function importStickerFiles(filePaths: string[]): ImportResult {
       contentHash
     )
 
-    library.push(sticker)
     existingHashes.add(contentHash)
     imported.push(sticker)
+    await yieldToEventLoop()
   }
 
   if (imported.length > 0) {
-    writeLibrary(library)
+    // Re-read instead of writing the copy loaded at the start: the user may
+    // have favorited/renamed something while this import was yielding, and
+    // writing the stale copy back would silently undo that.
+    writeLibrary([...readLibrary(), ...imported])
   }
 
   return { imported, skipped }

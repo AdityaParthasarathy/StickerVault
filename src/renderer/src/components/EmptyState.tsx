@@ -25,7 +25,7 @@ const EmptyState: FC<EmptyStateProps> = ({ onImportClick }) => {
       </button>
 
       <div className="empty-state__dropzone">
-        <span>or drag &amp; drop files here</span>
+        <span>or drag &amp; drop files or folders here</span>
       </div>
     </div>
   )

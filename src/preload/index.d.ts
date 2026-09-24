@@ -12,6 +12,7 @@ export interface StickerVaultApi {
   importStickers: (filePaths: string[]) => Promise<ImportResult>
   importGeneratedSticker: (pngBytes: Uint8Array, displayName: string) => Promise<Sticker>
   selectStickerFiles: () => Promise<string[]>
+  selectStickerFolders: () => Promise<string[]>
   getPathForFile: (file: File) => string
   copySticker: (id: string) => Promise<CopyResult>
   openSticker: (id: string) => Promise<void>

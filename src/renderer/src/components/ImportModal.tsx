@@ -44,6 +44,11 @@ const ImportModal: FC<ImportModalProps> = ({ isImporting, onImport, onClose }) =
     await runImport(filePaths)
   }
 
+  const handleBrowseFolderClick = async (): Promise<void> => {
+    const folderPaths = await window.api.selectStickerFolders()
+    await runImport(folderPaths)
+  }
+
   const handleDrop = async (event: DragEvent<HTMLDivElement>): Promise<void> => {
     event.preventDefault()
     setIsDragOver(false)
@@ -104,15 +109,27 @@ const ImportModal: FC<ImportModalProps> = ({ isImporting, onImport, onClose }) =
           >
             <DownloadIcon className="import-modal__dropzone-icon" />
             <p className="import-modal__dropzone-title">
-              {isImporting ? 'Importing…' : 'Drop stickers here'}
+              {isImporting ? 'Importing…' : 'Drop stickers or folders here'}
             </p>
             {!isImporting && (
               <>
                 <span className="import-modal__or">or</span>
-                <button type="button" className="import-modal__browse" onClick={handleBrowseClick}>
-                  Browse Files
-                </button>
+                <div className="import-modal__buttons">
+                  <button type="button" className="import-modal__browse" onClick={handleBrowseClick}>
+                    Browse Files
+                  </button>
+                  <button
+                    type="button"
+                    className="import-modal__browse import-modal__browse--secondary"
+                    onClick={handleBrowseFolderClick}
+                  >
+                    Browse Folder
+                  </button>
+                </div>
                 <p className="import-modal__formats">PNG · WEBP · JPG · GIF</p>
+                <p className="import-modal__formats">
+                  Folders are scanned including all subfolders
+                </p>
               </>
             )}
           </div>

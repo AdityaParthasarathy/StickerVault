@@ -17,6 +17,9 @@ const api = {
   selectStickerFiles: (): Promise<string[]> =>
     ipcRenderer.invoke('dialog:select-sticker-files'),
 
+  selectStickerFolders: (): Promise<string[]> =>
+    ipcRenderer.invoke('dialog:select-sticker-folders'),
+
   // Drag-and-dropped `File` objects don't carry a filesystem path by
   // default for security reasons — this is the sanctioned way to recover
   // it, and it only works inside a real drop event, not on any File.
